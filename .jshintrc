@@ -1,0 +1,200 @@
+{
+  "es5": true,
+  "node": true,
+
+  /**
+  * 是否阻止位運算符的使用
+  *
+  * 有時候為了快速取整或判斷，會使用一些位運算符，所以此項設置為 false
+  */
+  "bitwise": false,
+
+  /**
+  * 是否要求變量都使用駝峰命名
+  *
+  * 默認開啟
+  */
+  "camelcase": false,
+
+  /**
+  * 是否要求 for/while/if 帶花括號
+  *
+  * 我們建議多行的時候使用花括號，單行強制寫在一行。
+  * 因為這個選項不管單行多行，所以默認關閉
+  */
+  "curly": false,
+
+  /**
+  * 是否強制使用嚴格等號
+  *
+  * 有時候工程師需要判斷 null，所以默認不嚴格要求
+  */
+  "eqeqeq": false,
+
+  /**
+  * for-in 語句是否要求過濾原型鏈上的對象
+  *
+  * 默認打開
+  */
+  "forin": true,
+
+  /**
+  * 是要求否以 strict 模式檢查
+  *
+  * 該選項要求文件有 "use strict;" 字符串，而且很多限制有點殘酷。不全局要求，需要的模塊自行開啟
+  */
+  "strict": false,
+
+  /**
+  * 是否阻止修改或拓展基本對象（Array、Date 等）的原型鏈
+  *
+  * 原型鏈污染比較危險，默認打開
+  */
+  "freeze": true,
+
+  /**
+  * 是否要求自執行的方法使用括號括起
+  *
+  * 默認打開
+  */
+  "immed": true,
+
+  /**
+  * 指定縮進大小為 4 個空格
+  */
+  "indent": 4,
+
+  /**
+  * 要求變量在使用前聲明
+  */
+  "latedef": true,
+
+  /**
+  * 要求構造函數大寫
+  */
+  "newcap": true,
+
+  /**
+  * 不允許使用 arguments.callee 和 arguments.caller
+  */
+  "noarg": true,
+
+  /**
+  * 不允許空的代碼快，默認關閉
+  */
+  "noempty": false,
+
+  /**
+  * 不允許使用 "non-breaking whitespace"。
+  *
+  * 這些字符在非 UTF8 頁面會導致代碼失效
+  */
+  "nonbsp": true,
+
+  /**
+  * 阻止直接使用 new 調用構造函數的語句（不賦值對象）
+  *
+  * // OK
+  * var a = new Animal();
+  *
+  * // Warn
+  * new Animal();
+  */
+  "nonew": true,
+
+  /**
+  * 不允許使用 ++ 和 -- 運算符
+  *
+  * 默認關閉
+  */
+  "plusplus": false,
+
+  /**
+  * 字符串引號
+  *
+  * 默認要求使用單引號
+  */
+  //"quotmark": "single",
+
+  /**
+  * 提示未定義的變量
+  *
+  * 未定義的變量會容易造成全局變量，該項開啟
+  */
+  "undef": true,
+
+  /**
+  * 字符串不允許以空格加斜槓的形式來換行
+  *
+  * // OK
+  * var str = 'Hello ' +
+  *     'world';
+  *
+  * // No Way
+  * var str = 'Hello \
+  *     world';
+  */
+  "trailing": true,
+
+  /**
+  * 對代碼中使用的 debugger 語句默認給出警告
+  */
+  "debug": false,
+
+  /**
+  * 變量只能在函數域上定義，在代碼塊上定義的變量給出警告
+  *
+  * // OK
+  * function test() {
+   *    var x;
+   *
+   *    if (true) {
+   *        x = 0;
+   *    }
+   *
+   *    x += 1;
+   * }
+  *
+  * // No Way
+  * function test() {
+   *
+   *    if (true) {
+   *        var x = 0;
+   *    }
+   *
+   *    x += 1;
+   * }
+  */
+  "funcscope": true,
+
+  /**
+  * 寫字面量時，逗號放前面給出警告，例如：
+  *
+  * var obj = {
+   *     name: 'Anton'
+   *   , handle: 'valueOf'
+   *   , role: 'SW Engineer'
+   * }
+  */
+  "laxcomma": false,
+
+  /**
+  * 允許在循環語句中產生函數
+  */
+  "loopfunc": true,
+
+  /**
+  * 每個函數只允許使用一個 var 定義變量
+  *
+  * 默認關閉
+  */
+  "onevar": false,
+
+  /**
+  * 提示未使用的變量
+  *
+  * 默認開啟
+  */
+  "unused": true
+
+}

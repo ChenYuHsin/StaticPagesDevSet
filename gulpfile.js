@@ -1,28 +1,96 @@
-var gulp                    = require('gulp'),
-		connect                 = require('gulp-connect'),
-  	compass                 = require('gulp-compass');
+/*!
+ * gulp
+ * npm install gulp-ruby-sass gulp-autoprefixer gulp-cssnano gulp-jshint gulp-concat gulp-uglify gulp-imagemin gulp-notify gulp-rename gulp-livereload gulp-cache del --save-dev
+ */
 
-		concat                  = require('gulp-concat'),
-    minifyCSS               = require('gulp-minify-css'),
-    uglify                  = require('gulp-uglify'),
-    rename                  = require("gulp-rename"),
-		del                     = require('del');
+// Load plugins
+var gulp = require('gulp'),
+    sass = require('gulp-ruby-sass'),
+    autoprefixer = require('gulp-autoprefixer'),
+    cssnano = require('gulp-cssnano'),
+    jshint = require('gulp-jshint'),
+    uglify = require('gulp-uglify'),
+    imagemin = require('gulp-imagemin'),
+    rename = require('gulp-rename'),
+    concat = require('gulp-concat'),
+    notify = require('gulp-notify'),
+    cache = require('gulp-cache'),
+    livereload = require('gulp-livereload'),
+    del = require('del');
+    connect = require('gulp-connect');
+    htmlmin = require('gulp-htmlmin');
 
-// 利用compass編譯scss
-gulp.task('compass',['clean_css'],function(){
-  return gulp.src('sass/*.*')
-    .pipe(compass({
-				// config_file: './style/scss/config.rb',
-        css: './css', //輸出位置
-        sass: 'sass/', //來源位置
-        style: 'compact', //nested, expanded, compact, compressed 壓縮格式
-				comments: false, //是否要註解 預設為true
-          }))
-          .pipe(gulp.dest('./css')); //輸出位置，非必要
 
+// 編譯scss並壓縮
+gulp.task('scss', function() {
+  return sass('src/scss/*.scss', { style: 'expanded' })
+    .pipe(autoprefixer('last 2 version'))
+    .pipe(gulp.dest('dist/css'))
+    .pipe(notify({ message: 'scss task complete' }));
 });
 
-// 開啟web_server
+// 合併 *.min.css -> all.min.css
+gulp.task('combine_css',['scss'],function(){
+  return gulp.src('dist/css/*.css')
+    .pipe(concat('all.css'))
+    .pipe(cssnano())
+    .pipe(rename({suffix:'.min'}))
+    .pipe(notify({message:'combine_css is done.'}))
+    .pipe(gulp.dest('dist/css'));
+    //.pipe(connect.reload())
+    //.pipe(notify({message:"reload complete"}));
+});
+
+// 檢查 js並合併壓縮
+gulp.task('js', function() {
+  return gulp.src('src/js/*.js')
+    .pipe(jshint('.jshintrc')) //讀取jshint設定檔，可以自訂檢查輸出項目
+    .pipe(jshint.reporter('default'))
+    .pipe(concat('all.js'))
+    .pipe(gulp.dest('dist/js'))
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(uglify())
+    .pipe(gulp.dest('dist/js'))
+    .pipe(notify({ message: 'js task complete' }))
+    .pipe(connect.reload())
+    .pipe(notify({message:"reload complete"}));
+});
+
+// Images 壓縮圖片
+gulp.task('images', function() {
+  return gulp.src('src/images/*/*')
+    .pipe(cache(imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
+    .pipe(gulp.dest('dist/images'))
+    .pipe(notify({ message: 'Images task complete' }))
+    .pipe(connect.reload())
+    .pipe(notify({message:"reload complete"}));
+});
+
+gulp.task('html', function () {
+    var options = {
+        removeComments: true,//清除HTML註釋
+        collapseWhitespace: true,//壓縮HTML
+        collapseBooleanAttributes: true,//省略布爾屬性的值 <input checked="true"/> ==> <input />
+        removeEmptyAttributes: true,//刪除所有空格作屬性值 <input id="" /> ==> <input />
+        removeScriptTypeAttributes: true,//刪除<script>的type="text/javascript"
+        removeStyleLinkTypeAttributes: true,//刪除<style>和<link>的type="text/css"
+        minifyJS: true,//壓縮頁面JS
+        minifyCSS: true//壓縮頁面CSS
+    };
+    return gulp.src('src/html/*.html')
+        .pipe(htmlmin(options))
+        .pipe(gulp.dest('dist/html'))
+        .pipe(connect.reload())
+        .pipe(notify({message:"reload complete"}));
+});
+
+
+// Clean 清掉舊的 dist 檔案，並免不必要的錯誤
+gulp.task('clean', function() {
+  return del(['dist/css', 'dist/js', 'dist/images','dist/html']);
+});
+
+// 開啟含 livereload的 web_server
 gulp.task('server_on',function(){
 	connect.server({
 		livereload:true,
@@ -31,56 +99,44 @@ gulp.task('server_on',function(){
 
 // 重新整理頁面
 gulp.task('reload',function(){
-	gulp.src('*.html')
-		.pipe(connect.reload());
-});
-
-// 合併所有 css檔案成 all.css
-gulp.task('concat_css',['compass'],function(){
-	return gulp.src('./css/*.css')
-		.pipe(concat('all.css'))
-		.pipe(gulp.dest('./css/all'));
-});
-
-// 壓縮 all.css成 all.min.css
-gulp.task('minify_css',['concat_css'], function() {
-  return gulp.src('./css/all/all.css')
-    .pipe(minifyCSS({
-       keepBreaks: true,
-    }))
-    .pipe(rename(function(path) {
-      path.basename += ".min";
-      path.extname   = ".css";
-    }))
-    .pipe(gulp.dest('./'));
-});
-
-// 壓縮 js檔
-gulp.task('uglify', function() {
-    return gulp.src('./js/*.js')
-        .pipe(uglify())
-        .pipe(rename(function(path) {
-            path.basename += ".min";
-            path.extname   = ".js";
-        }))
-        .pipe(gulp.dest('./'));
-});
-
-// 編譯前先刪除舊的 css檔案
-gulp.task('clean_css',function(){
-	return del('css/*.css');
+	return gulp.src('dist/html/*.html')
+		.pipe(connect.reload())
+    .pipe(notify({message:'reload complete'}));
 });
 
 
-// 監視各檔案有沒有變化
-gulp.task('watch',function(){
-	gulp.watch('*.html',['reload']);
-  gulp.watch('sass/*.*',['minify_css']);
-  gulp.watch('*.css',['reload']);
-	gulp.watch('./js/*.js',['uglify']);
-	gulp.watch('log.min.js',['reload']);
+// Default task
+gulp.task('default', ['clean'], function() {
+  gulp.start('scss', 'js', 'images','html');
+});
+
+// Watch
+gulp.task('watch', ['server_on'], function() {
+
+  // Watch .scss files
+  gulp.watch('src/scss/*.scss', ['combine_css']);
+
+  // Watch .js files
+  gulp.watch('src/js/*.js', ['js']);
+
+  // Watch image files
+  gulp.watch('src/images/**/*', ['images']);
+
+  gulp.watch('src/html/*.html', ['html']);
+
+  // Watch any files in dist/, reload on change
+  gulp.watch('dist/**',['reload']);
+
 });
 
 
-//gulp.task('default',['minify-css','uglify'])
-gulp.task('default',['server_on','watch']);
+/*目前這種配置的問題在於 watch監看檔案變化時，無法在適當的時機
+reload。因為我單獨把 reload寫成一個 task，而在 watch後只能執
+行一個 task...
+
+
+本來希望：
+  watch監看
+    檔案變化 -> 先處理（編譯scss或壓縮合併之類的） -> reload
+
+*/
