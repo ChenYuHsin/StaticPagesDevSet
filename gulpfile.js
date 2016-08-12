@@ -19,51 +19,52 @@ var gulp = require('gulp'),
     del = require('del');
     connect = require('gulp-connect');
     htmlmin = require('gulp-htmlmin');
+    gulp_sass= require('gulp-sass')
 
 
-// 編譯scss並壓縮
-gulp.task('scss', function() {
-  return sass('src/scss/*.scss', { style: 'expanded' })
-    .pipe(autoprefixer('last 2 version'))
-    .pipe(gulp.dest('dist/css'))
-    .pipe(notify({ message: 'scss task complete' }));
+// 編譯scss
+gulp.task('compile_scss', function() {
+  return gulp.src('src/scss/*.scss')
+    .pipe(gulp_sass())
+    .pipe(gulp.dest('src/css'))
+    .pipe(notify({ message: 'compiled scss' }));
 });
 
 // 合併 *.min.css -> all.min.css
-gulp.task('combine_css',['scss'],function(){
-  return gulp.src('dist/css/*.css')
+gulp.task('combine_css',['compile_scss'],function(){
+  return gulp.src('src/css/*.css')
     .pipe(concat('all.css'))
     .pipe(cssnano())
     .pipe(rename({suffix:'.min'}))
-    .pipe(notify({message:'combine_css is done.'}))
-    .pipe(gulp.dest('dist/css'));
+    .pipe(gulp.dest('dist/css'))
+    .pipe(notify({message:'combine_css is done.'}));
     //.pipe(connect.reload())
     //.pipe(notify({message:"reload complete"}));
 });
 
 // 檢查 js並合併壓縮
-gulp.task('js', function() {
+gulp.task('optimize_js', function() {
   return gulp.src('src/js/*.js')
     .pipe(jshint('.jshintrc')) //讀取jshint設定檔，可以自訂檢查輸出項目
     .pipe(jshint.reporter('default'))
     .pipe(concat('all.js'))
-    .pipe(gulp.dest('dist/js'))
+    .pipe(gulp.dest('src/js'))
     .pipe(rename({ suffix: '.min' }))
     .pipe(uglify())
     .pipe(gulp.dest('dist/js'))
-    .pipe(notify({ message: 'js task complete' }))
-    .pipe(connect.reload())
-    .pipe(notify({message:"reload complete"}));
+    .pipe(notify({ message: 'js task complete' }));
+    //.pipe(connect.reload())
+    //.pipe(notify({message:"reload complete"}));
 });
 
 // Images 壓縮圖片
 gulp.task('images', function() {
-  return gulp.src('src/images/*/*')
+  return gulp.src('src/images/**/*')
     .pipe(cache(imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
     .pipe(gulp.dest('dist/images'))
-    .pipe(notify({ message: 'Images task complete' }))
-    .pipe(connect.reload())
-    .pipe(notify({message:"reload complete"}));
+    .pipe(notify({ message: 'Images task complete' }));
+    //.pipe(connect.reload())
+    //.pipe(notify({message:"reload complete"}));
 });
 
 gulp.task('html', function () {
@@ -77,17 +78,17 @@ gulp.task('html', function () {
         minifyJS: true,//壓縮頁面JS
         minifyCSS: true//壓縮頁面CSS
     };
-    return gulp.src('src/html/*.html')
+    return gulp.src('src/index.html')
         .pipe(htmlmin(options))
-        .pipe(gulp.dest('dist/html'))
-        .pipe(connect.reload())
-        .pipe(notify({message:"reload complete"}));
+        .pipe(gulp.dest('dist'));
+        //.pipe(connect.reload())
+        //.pipe(notify({message:"reload complete"}));
 });
 
 
 // Clean 清掉舊的 dist 檔案，並免不必要的錯誤
 gulp.task('clean', function() {
-  return del(['dist/css', 'dist/js', 'dist/images','dist/html']);
+  return del(['dist/css', 'dist/js', 'dist/images']);
 });
 
 // 開啟含 livereload的 web_server
@@ -99,15 +100,15 @@ gulp.task('server_on',function(){
 
 // 重新整理頁面
 gulp.task('reload',function(){
-	return gulp.src('dist/html/*.html')
+	return gulp.src('dist/index.html')
 		.pipe(connect.reload())
-    .pipe(notify({message:'reload complete'}));
+    .pipe(notify({message:'reload completed'}));
 });
 
 
 // Default task
 gulp.task('default', ['clean'], function() {
-  gulp.start('scss', 'js', 'images','html');
+  gulp.start('combine_css', 'optimize_js', 'images','html');
 });
 
 // Watch
@@ -117,12 +118,12 @@ gulp.task('watch', ['server_on'], function() {
   gulp.watch('src/scss/*.scss', ['combine_css']);
 
   // Watch .js files
-  gulp.watch('src/js/*.js', ['js']);
+  gulp.watch('src/js/*.js', ['optimize_js']);
 
   // Watch image files
   gulp.watch('src/images/**/*', ['images']);
 
-  gulp.watch('src/html/*.html', ['html']);
+  gulp.watch('src/index.html', ['html']);
 
   // Watch any files in dist/, reload on change
   gulp.watch('dist/**',['reload']);
