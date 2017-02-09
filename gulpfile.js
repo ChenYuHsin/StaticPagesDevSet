@@ -23,49 +23,61 @@ var gulp = require('gulp'),
 
 
 // 編譯scss
-gulp.task('compile_scss', function() {
+gulp.task('compile-scss', function() {
   return gulp.src('src/scss/*.scss')
     .pipe(gulp_sass())
-    .pipe(gulp.dest('src/css'))
-    .pipe(notify({ message: 'compiled scss' }));
+    .pipe(gulp.dest('dev/css'))
+    .pipe(notify({ message: 'src/.scss -> dev/.css' }));
 });
 
-// 合併 *.min.css -> all.min.css
-gulp.task('combine_css',['compile_scss'],function(){
-  return gulp.src('src/css/*.css')
+// 合併css
+gulp.task('combine-css',['complile-scss'],function(){
+  return gulp.src('dev/css/*.css')
+    .pipe(concat('all.css'))
+    .pipe(gulp.dest('dev/css')
+    .pipe(notify({message:'*.css -> all.css'}));
+});
+
+
+
+/* 合併 *.min.css -> all.min.css
+gulp.task('combine-css',['compile_scss'],function(){
+  return gulp.src('dev/css/*.css')
     .pipe(concat('all.css'))
     .pipe(cssnano())
     .pipe(rename({suffix:'.min'}))
     .pipe(gulp.dest('dist/css'))
-    .pipe(notify({message:'combine_css is done.'}));
+    .pipe(notify({message:'*.css -> all.css -> all.min.css'}));
     //.pipe(connect.reload())
     //.pipe(notify({message:"reload complete"}));
 });
+*/
 
 // 檢查 js並合併壓縮
-gulp.task('optimize_js', function() {
+gulp.task('optimize-js', function() {
   return gulp.src('src/js/*.js')
     .pipe(jshint('.jshintrc')) //讀取jshint設定檔，可以自訂檢查輸出項目
     .pipe(jshint.reporter('default'))
     .pipe(concat('all.js'))
-    .pipe(gulp.dest('src/js'))
-    .pipe(rename({ suffix: '.min' }))
-    .pipe(uglify())
-    .pipe(gulp.dest('dist/js'))
-    .pipe(notify({ message: 'js task complete' }));
-    //.pipe(connect.reload())
-    //.pipe(notify({message:"reload complete"}));
+    .pipe(gulp.dest('dev/js'))
+    .pipe(notify({message:'*.js -> all.js'}));
+    // .pipe(rename({ suffix: '.min' }))
+    // .pipe(uglify())
+    // .pipe(gulp.dest('dist/js'))
+    // .pipe(notify({ message: 'js task complete' }));
+    // .pipe(connect.reload())
+    // .pipe(notify({message:"reload complete"}));
 });
 
-// Images 壓縮圖片
-gulp.task('images', function() {
-  return gulp.src('src/images/**/*')
-    .pipe(cache(imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
-    .pipe(gulp.dest('dist/images'))
-    .pipe(notify({ message: 'Images task complete' }));
-    //.pipe(connect.reload())
-    //.pipe(notify({message:"reload complete"}));
-});
+// // Images 壓縮圖片
+// gulp.task('images', function() {
+//   return gulp.src('src/images/**/*')
+//     .pipe(cache(imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
+//     .pipe(gulp.dest('dist/images'))
+//     .pipe(notify({ message: 'Images task complete' }));
+//     //.pipe(connect.reload())
+//     //.pipe(notify({message:"reload complete"}));
+// });
 
 gulp.task('html', function () {
     var options = {
@@ -131,7 +143,10 @@ gulp.task('watch', ['server_on'], function() {
 });
 
 
-/*目前這種配置的問題在於 watch監看檔案變化時，無法在適當的時機
+/*
+TODO
+
+目前這種配置的問題在於 watch監看檔案變化時，無法在適當的時機
 reload。因為我單獨把 reload寫成一個 task，而在 watch後只能執
 行一個 task...
 
