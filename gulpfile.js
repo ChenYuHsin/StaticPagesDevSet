@@ -12,7 +12,6 @@ var gulp         = require('gulp'),
     jshint       = require('gulp-jshint'),
     uglify       = require('gulp-uglify'),
     imagemin     = require('gulp-imagemin'),
-    rename       = require('gulp-rename'),
     notify       = require('gulp-notify'),
     del          = require('del'),
     connect      = require('gulp-connect'),
@@ -41,12 +40,6 @@ var imgPath = {
   src: mainDirs.src + "/img/*/*",
   dest: mainDirs.dest + "/img"
 };
-
-var htmlPath = {
-  src: mainDirs.src + "/index.html",
-  dest: mainDirs.dest
-};
-
 
 // 編譯scss
 gulp.task('processSCSS', function() {
@@ -94,12 +87,13 @@ gulp.task('processHTML', function () {
         minifyJS: true,//壓縮頁面JS
         minifyCSS: true//壓縮頁面CSS
     };
-    return gulp.src(htmlPath.src+'/index.html')
+    gulp.src('src/index.html')
         .pipe(htmlmin(options))
-        .pipe(gulp.dest(htmlPath.dest))
-        .pipe(notify({message:"html optimized"}))
+        .pipe(gulp.dest('./'))
+        .pipe(notify({message:"HTML processed"}))
         .pipe(connect.reload());
 });
+
 
 
 // Clean 清掉舊的 dist 檔案，並免不必要的錯誤
@@ -127,13 +121,13 @@ gulp.task('reloadIndex',function(){
 gulp.task('default', ['cleanDist','processSCSS','processJS','processIMG','processHTML']);
 
 // Watch
-gulp.task('watch', ['server_on'], function() {
+gulp.task('watch', ['runServer'], function() {
   // Watch .scss files
-  gulp.watch(stylePath.src+'/*.scss', ['compile-scss']);
+  gulp.watch('src/scss/*.scss', ['processSCSS']);
   // Watch .js files
-  gulp.watch(scriptPath.src+'/*.js', ['optimize-js']);
+  gulp.watch(scriptPath.src+'/*.js', ['processJS']);
   // Watch image files
-  gulp.watch(imgPath.src+'/*',['optimize-img']);
+  gulp.watch(imgPath.src+'/*',['processIMG']);
   // Watch index.html
-  gulp.watch(htmlPath+'/index.html', ['reload-index']);
+  gulp.watch('src/index.html', ['processHTML']);
 });
