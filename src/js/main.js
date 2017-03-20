@@ -1,3 +1,1 @@
-console.log("js");
-console.log("al");
-// comments
+// write your js code here

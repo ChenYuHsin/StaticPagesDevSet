@@ -1,10 +1,4 @@
-/*!
- * gulp
- * npm install gulp-ruby-sass gulp-autoprefixer gulp-cssnano gulp-jshint gulp-concat gulp-uglify gulp-imagemin gulp-notify gulp-rename gulp-livereload gulp-cache del --save-dev
- */
-
-
-// Load plugins
+// 載入 plugins
 var gulp         = require('gulp'),
     sass         = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
@@ -42,7 +36,7 @@ var imgPath = {
   dest: dirs.dest + "/img"
 };
 
-// 編譯scss
+// 編譯 SCSS 、加前綴並壓縮
 gulp.task('processSCSS', function() {
   return gulp.src(stylePath.srcFiles)
     .pipe(sass())
@@ -57,7 +51,7 @@ gulp.task('processSCSS', function() {
     .pipe(connect.reload());
 });
 
-// 檢查 js並合併壓縮
+// 檢查 js 並 uglify
 gulp.task('processJS', function() {
   return gulp.src(scriptPath.srcFiles)
     .pipe(jshint('.jshintrc')) //讀取jshint設定檔，可以自訂檢查輸出項目
@@ -68,7 +62,7 @@ gulp.task('processJS', function() {
     .pipe(connect.reload());
 });
 
-// Images 壓縮圖片
+// 壓縮圖片檔
 gulp.task('processIMG', function() {
   return gulp.src(imgPath.srcFiles)
     .pipe(cache(imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
@@ -77,6 +71,7 @@ gulp.task('processIMG', function() {
     .pipe(connect.reload());
 });
 
+// 壓縮 HTML
 gulp.task('processHTML', function () {
     var options = {
         removeComments: true,//清除HTML註釋
@@ -97,12 +92,12 @@ gulp.task('processHTML', function () {
 
 
 
-// Clean 清掉舊的 dist 檔案，並免不必要的錯誤
+// 清掉舊的 dist 資料夾，並免不必要的錯誤
 gulp.task('cleanDist', function() {
   return del([dirs.dest]);
 });
 
-// 開啟含 livereload的 web_server
+// 開啟俱 LiveReload 的 web server
 gulp.task('runServer',function(){
 	connect.server({
 		livereload:true,
@@ -110,7 +105,7 @@ gulp.task('runServer',function(){
 	});
 });
 
-// 重新整理頁面
+// 重新整理 index.html
 gulp.task('reloadIndex',function(){
 	return gulp.src('./index.html')
 		.pipe(connect.reload())
