@@ -1,5 +1,10 @@
-body{
-  h1{
-    
+$bg-color: #999;
+$font-color: #fff;
+
+body {
+  h1 {
+    background-color: $bg-color;
+    color: $font-color;
+    font-size: 200px;
   }
 }

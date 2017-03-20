@@ -1,2 +1,3 @@
 console.log("js");
-alert("hi");
+console.log("al");
+// comments

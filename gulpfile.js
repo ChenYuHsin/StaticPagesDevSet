@@ -16,34 +16,35 @@ var gulp         = require('gulp'),
     del          = require('del'),
     connect      = require('gulp-connect'),
     cache        = require('gulp-cache'),
-    htmlmin      = require('gulp-htmlmin');
+    htmlmin      = require('gulp-htmlmin'),
+    runSeq       = require('run-sequence');
 
 
 
 // 路徑變數
-var mainDirs ={
+var dirs ={
   src: "src",
   dest: "dist"
 };
 
 var stylePath = {
-  src: mainDirs.src + "/scss/*.scss",
-  dest: mainDirs.dest + "/css"
+  srcFiles: dirs.src + "/scss/*.scss",
+  dest: dirs.dest + "/css"
 };
 
 var scriptPath = {
-  src: mainDirs.src + "/js/*.js",
-  dest: mainDirs.dest + "/js"
+  srcFiles: dirs.src + "/js/*.js",
+  dest: dirs.dest + "/js"
 };
 
 var imgPath = {
-  src: mainDirs.src + "/img/*/*",
-  dest: mainDirs.dest + "/img"
+  srcFiles: dirs.src + "/img/*/*",
+  dest: dirs.dest + "/img"
 };
 
 // 編譯scss
 gulp.task('processSCSS', function() {
-  return gulp.src(stylePath.src)
+  return gulp.src(stylePath.srcFiles)
     .pipe(sass())
     .pipe(autoprefixer({
       browsers: ['last 3 versions'],
@@ -58,7 +59,7 @@ gulp.task('processSCSS', function() {
 
 // 檢查 js並合併壓縮
 gulp.task('processJS', function() {
-  return gulp.src(scriptPath.src)
+  return gulp.src(scriptPath.srcFiles)
     .pipe(jshint('.jshintrc')) //讀取jshint設定檔，可以自訂檢查輸出項目
     .pipe(jshint.reporter('default'))
     .pipe(uglify())
@@ -69,7 +70,7 @@ gulp.task('processJS', function() {
 
 // Images 壓縮圖片
 gulp.task('processIMG', function() {
-  return gulp.src(imgPath.src)
+  return gulp.src(imgPath.srcFiles)
     .pipe(cache(imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
     .pipe(gulp.dest(imgPath.dest))
     .pipe(notify({ message: 'images processed'}))
@@ -87,7 +88,7 @@ gulp.task('processHTML', function () {
         minifyJS: true,//壓縮頁面JS
         minifyCSS: true//壓縮頁面CSS
     };
-    gulp.src('src/index.html')
+    return gulp.src(dirs.src+'/index.html')
         .pipe(htmlmin(options))
         .pipe(gulp.dest('./'))
         .pipe(notify({message:"HTML processed"}))
@@ -98,7 +99,7 @@ gulp.task('processHTML', function () {
 
 // Clean 清掉舊的 dist 檔案，並免不必要的錯誤
 gulp.task('cleanDist', function() {
-  return del([mainDirs.dest]);
+  return del([dirs.dest]);
 });
 
 // 開啟含 livereload的 web_server
@@ -111,23 +112,28 @@ gulp.task('runServer',function(){
 
 // 重新整理頁面
 gulp.task('reloadIndex',function(){
-	return gulp.src(mainDirs+'/index.html')
+	return gulp.src('./index.html')
 		.pipe(connect.reload())
     .pipe(notify({message:'index.html reloaded'}));
 });
 
 
 // Default task
-gulp.task('default', ['cleanDist','processSCSS','processJS','processIMG','processHTML']);
+gulp.task('default', function(cb){
+  runSeq('cleanDist',
+  ['processSCSS','processJS','processIMG','processHTML'],
+  'watch',
+  cb)
+});
 
 // Watch
 gulp.task('watch', ['runServer'], function() {
   // Watch .scss files
-  gulp.watch('src/scss/*.scss', ['processSCSS']);
+  gulp.watch(stylePath.srcFiles, ['processSCSS']);
   // Watch .js files
-  gulp.watch(scriptPath.src+'/*.js', ['processJS']);
+  gulp.watch(scriptPath.srcFiles, ['processJS']);
   // Watch image files
-  gulp.watch(imgPath.src+'/*',['processIMG']);
+  gulp.watch(imgPath.srcFiles,['processIMG']);
   // Watch index.html
-  gulp.watch('src/index.html', ['processHTML']);
+  gulp.watch(dirs.src+'/index.html', ['processHTML']);
 });

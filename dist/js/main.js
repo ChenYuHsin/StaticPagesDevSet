@@ -1,1 +1,1 @@
-console.log("js"),alert("hi");
+console.log("js"),console.log("al");
