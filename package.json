@@ -1,7 +1,7 @@
 {
-  "name": "gulp_staticpages",
+  "name": "static-pages-dev-set",
   "version": "1.0.0",
-  "description": "這個 Repo主要是放我簡單的 Gulp配置，做為我平常開發靜態網頁時可以快速架設環境。",
+  "description": "簡單的 Gulp 配置，開發靜態網頁時可以快速架設環境。",
   "main": "gulpfile.js",
   "devDependencies": {
     "del": "^2.2.1",
