@@ -104,7 +104,7 @@ gulp
 2. 安裝 Gulp，請參閱 [Gulp](http://gulpjs.com)
 3. 複製下載本 Repo
 ```git
-Clone git@github.com:ChenYuHsin/StaticPagesDevSet.git
+Clone git@github.com:sss63232/StaticPagesDevSet.git
 ```
 4. 安裝 npm 套件
 ```javascript
